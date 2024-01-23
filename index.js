@@ -21,7 +21,19 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
+    // monjur code start
     const userCollection = client.db("domainHub").collection("users");
+    // monjur code finish
+
+
+    // Digontha Code start
+    const freeTrialUserCollection = client.db("domainHub").collection("freeTrialUsers")
+    // Digontha Code finish
+
+
+
+
+    // monjur code start
     app.post("/users", async (req, res) => {
       const user = req.body;
       const email = req.body.email;
@@ -35,6 +47,28 @@ async function run() {
         res.send(result);
       }
     });
+    // monjur code finish
+
+
+    //  Digontha Code start
+    app.post("/freeTrialUsers", async (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const result = await freeTrialUserCollection.insertOne(user)
+      res.send(result);
+    });
+
+    app.get("/freeTrialUsers", async (req, res) => {
+      const email = req.query.email;
+      console.log(email);
+      let query = {}
+      if(email){
+        query = { email: email};
+      }
+      const result = await freeTrialUserCollection.find(query).toArray();
+      res.send(result)
+    });
+   //  Digontha Code finish
 
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
