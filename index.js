@@ -73,7 +73,6 @@ async function run() {
    //  Digontha Code finish
 
     // Connect the client to the server	(optional starting in v4.7)
-<<<<<<< HEAD
     await client.connect();
 
     const domainCollection = client.db("domainHub").collection("domain");
@@ -144,9 +143,7 @@ async function run() {
     // carts related api//Abubakar
 
 
-=======
     // await client.connect();
->>>>>>> 3f4fa0d4f3675a09e18244d789bf83bd9e8828a6
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log(
@@ -163,16 +160,6 @@ app.get("/", (req, res) => {
   res.send("database is coming soon....");
 });
 
-<<<<<<< HEAD
-app.get('/', (req, res) => {
-  res.send('database is coming soon....')
-})
-
-app.listen(port, (req, res) => {
-  console.log(`database is running successfully , PORT : ${port} `);
-})
-=======
 app.listen(port, (req, res) => {
   console.log(`database is running successfully , PORT : ${port} `);
 });
->>>>>>> 3f4fa0d4f3675a09e18244d789bf83bd9e8828a6
