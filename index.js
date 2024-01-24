@@ -89,11 +89,19 @@ async function run() {
     // monjur code finish
 
     //  Digontha Code start
+
     app.post("/freeTrialUsers", async (req, res) => {
       const user = req.body;
-      console.log(user);
-      const result = await freeTrialUserCollection.insertOne(user);
-      res.send(result);
+      const email = req.body.email;
+      const cursor = { email: email };
+      const existing = await freeTrialUserCollection.findOne(cursor);
+      if (existing) {
+        return res.send({ message: "User already exists" });
+      } else {
+        console.log(user);
+        const result = await freeTrialUserCollection.insertOne(user);
+        res.send(result);
+      }
     });
 
     app.get("/freeTrialUsers", async (req, res) => {
