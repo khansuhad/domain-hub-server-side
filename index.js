@@ -66,8 +66,24 @@ async function run() {
         },
       };
       const result = await userCollection.updateOne(cursor, updatedDoc);
-      res.send(result)
+      res.send(result);
+    });
 
+    app.put("/users-role/:id", async (req, res) => {
+      const info = req.body;
+      const id = req.params.id;
+      console.log(id);
+      console.log(info);
+      const cursor = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          role: info.role,
+        },
+      };
+      console.log(updatedDoc);
+      const result = await userCollection.updateOne(cursor, updatedDoc);
+      console.log(result);
+      res.send(result);
     });
 
     // monjur code finish
