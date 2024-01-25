@@ -157,6 +157,14 @@ async function run() {
       const result = await domainCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
+    app.delete("/domain/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const result = await domainCollection.deleteOne(query);
+      res.send(result);
+    });
+    
     // carts related api//Abubakar
     app.get("/carts", async (req, res) => {
       const result = await cartsCollection.find().toArray();
