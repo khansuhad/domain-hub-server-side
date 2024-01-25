@@ -1,1 +1,23 @@
-# domain-hub-server-side
+# DomainHub
+
+- [Live link](https://domain-hub-a81ae.web.app/)
+- [Client site github repo link](https://github.com/khansuhad/domain-hub)
+
+## .env file setup
+
+ ### Connect your local database (mongoDB atlas)
+
+- USER_NAME = xxx
+- USER_PASS = xxx
+
+
+## Project setup
+
+### Follow the process
+
+- npm i (for install all packages)
+- code . (for open code)
+- nodemon index.js or node index.js  (for run server in local host)
+
+
+
