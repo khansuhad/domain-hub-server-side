@@ -114,6 +114,33 @@ async function run() {
       const result = await freeTrialUserCollection.find(query).toArray();
       res.send(result);
     });
+
+    app.put("/freeTrialUsers", async (req, res) => {
+      const email = req.query.email
+      const query = { email: email }
+
+      const updatedData = {
+          $set: {
+              approve: true,
+          }
+      }
+      const result = await freeTrialUserCollection.updateOne(query, updatedData)
+      res.send(result)
+  });
+
+    app.patch("/freeTrialUsers", async (req, res) => {
+      const email = req.query.email
+      const query = { email: email }
+
+      const updatedData = {
+          $set: {
+              approve: false,
+          }
+      }
+      const result = await freeTrialUserCollection.updateOne(query, updatedData)
+      res.send(result)
+  });
+
     //  Digontha Code finish
 
     // Connect the client to the server	(optional starting in v4.7)
