@@ -151,6 +151,7 @@ async function run() {
           name: item.name,
           category: item.category,
           price: item.price,
+          description: item.description
         },
       };
       // console.log(updatedDoc);
