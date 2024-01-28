@@ -118,28 +118,23 @@ async function run() {
     app.put("/freeTrialUsers", async (req, res) => {
       const email = req.query.email
       const query = { email: email }
-
+      const status = req.query.status
+      console.log(status);
       const updatedData = {
-          $set: {
-              approve: true,
-          }
+        $set: {
+          approve: status,
+        }
       }
       const result = await freeTrialUserCollection.updateOne(query, updatedData)
       res.send(result)
-  });
+    });
 
-    app.patch("/freeTrialUsers", async (req, res) => {
+    app.delete("/freeTrialUsers", async (req, res) => {
       const email = req.query.email
       const query = { email: email }
-
-      const updatedData = {
-          $set: {
-              approve: false,
-          }
-      }
-      const result = await freeTrialUserCollection.updateOne(query, updatedData)
-      res.send(result)
-  });
+      const result = await freeTrialUserCollection.deleteOne(query);
+      res.send(result);
+    });
 
     //  Digontha Code finish
 
@@ -192,7 +187,7 @@ async function run() {
       const result = await domainCollection.deleteOne(query);
       res.send(result);
     });
-    
+
     // carts related api//Abubakar
     app.get("/carts", async (req, res) => {
       const result = await cartsCollection.find().toArray();
