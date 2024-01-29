@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -116,30 +117,36 @@ async function run() {
     });
 
     app.put("/freeTrialUsers", async (req, res) => {
-      const email = req.query.email
-      const query = { email: email }
+      const email = req.query.email;
+      const query = { email: email };
 
       const updatedData = {
-          $set: {
-              approve: true,
-          }
-      }
-      const result = await freeTrialUserCollection.updateOne(query, updatedData)
-      res.send(result)
-  });
+        $set: {
+          approve: true,
+        },
+      };
+      const result = await freeTrialUserCollection.updateOne(
+        query,
+        updatedData
+      );
+      res.send(result);
+    });
 
     app.patch("/freeTrialUsers", async (req, res) => {
-      const email = req.query.email
-      const query = { email: email }
+      const email = req.query.email;
+      const query = { email: email };
 
       const updatedData = {
-          $set: {
-              approve: false,
-          }
-      }
-      const result = await freeTrialUserCollection.updateOne(query, updatedData)
-      res.send(result)
-  });
+        $set: {
+          approve: false,
+        },
+      };
+      const result = await freeTrialUserCollection.updateOne(
+        query,
+        updatedData
+      );
+      res.send(result);
+    });
 
     //  Digontha Code finish
 
@@ -178,7 +185,7 @@ async function run() {
           name: item.name,
           category: item.category,
           price: item.price,
-          description: item.description
+          description: item.description,
         },
       };
       // console.log(updatedDoc);
@@ -192,10 +199,16 @@ async function run() {
       const result = await domainCollection.deleteOne(query);
       res.send(result);
     });
-    
+
     // carts related api//Abubakar
+    // app.get("/carts", async (req, res) => {
+    //   const result = await cartsCollection.find().toArray();
+    //   res.send(result);
+    // });
     app.get("/carts", async (req, res) => {
-      const result = await cartsCollection.find().toArray();
+      const email = req.query.email;
+      const cursor = { payment : "false", email}
+      const result = await cartsCollection.find(cursor).toArray();
       res.send(result);
     });
 
@@ -219,6 +232,49 @@ async function run() {
       res.send(result);
     });
     // carts related api//Abubakar
+
+    app.put("/carts", async (req, res) => {
+      try {
+        const carts = req.body;
+        console.log("carts", carts);
+
+        // Loop through each item in the request body and update its payment status
+        for (const item of carts) {
+          const updatedDoc = {
+            $set: {
+              payment: "true",
+            },
+          };
+
+          // Update the document in the MongoDB collection
+          await cartsCollection.updateOne(
+            { _id: new ObjectId(item._id) },
+            updatedDoc
+          );
+        }
+        res.status(200).json({ message: "Carts updated successfully" });
+        console.log("Carts updated successfully");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // payment intent
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price * 100);
+      console.log(amount, "amount inside the intent");
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "bdt",
+        payment_method_types: ["card"],
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
 
     // await client.connect();
     // Send a ping to confirm a successful connection
