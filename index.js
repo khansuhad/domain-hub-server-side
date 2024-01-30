@@ -26,6 +26,11 @@ async function run() {
     const userCollection = client.db("domainHub").collection("users");
     // monjur code finish
 
+    // Fahim Code Start
+    const paymentTrueCollection = client.db("domainHub").collection("carts");
+    const reviewCollection = client.db("domainHub").collection("reviews");
+    // Fahim Code Start
+
     // Digontha Code start
     const freeTrialUserCollection = client
       .db("domainHub")
@@ -275,6 +280,45 @@ async function run() {
         clientSecret: paymentIntent.client_secret,
       });
     });
+
+    // Fahim Review part
+app.get('/paymentTrueCarts', async (req, res) => {
+  try {
+    const userEmail = req?.query?.email;
+    const paymentValue = req?.query?.payment
+    const query = {
+      email: userEmail,
+      payment: paymentValue,
+    };
+    const result = await paymentTrueCollection.find(query).toArray();
+    res.send(result)
+  }
+  catch(error){
+    console.log(error)
+  }})
+
+  app.post("/review", async (req, res) => {
+      const reviewItem = req.body;
+      const result = await reviewCollection.insertOne(reviewItem);
+      res.send(result);
+    });
+  app.post("/review", async (req, res) => {
+      const reviewItem = req.body;
+      const result = await reviewCollection.insertOne(reviewItem);
+      res.send(result);
+  });
+  app.put("/cart/:id", async (req, res) => {
+    const id = req.params.id;
+    const cursor = { _id: new ObjectId(id) };
+    const updatedDoc = {
+      $set: {
+        review: "true"
+      },
+    };
+    const result = await cartsCollection.updateOne(cursor, updatedDoc);
+    res.send(result);
+  });
+    // Fahim Review part
 
     // await client.connect();
     // Send a ping to confirm a successful connection
