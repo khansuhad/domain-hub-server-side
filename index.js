@@ -297,11 +297,16 @@ app.get('/paymentTrueCarts', async (req, res) => {
     console.log(error)
   }})
 
-  app.post("/review", async (req, res) => {
-      const reviewItem = req.body;
-      const result = await reviewCollection.insertOne(reviewItem);
-      res.send(result);
-    });
+app.get('/myReview', async (req, res) => {
+  const email = req?.query?.email
+  const query = {userEmail: email}
+  const result = await reviewCollection.find(query).toArray()
+  res.send(result)
+})
+  app.get('/review', async (req, res) =>{
+    const result = await reviewCollection.find().toArray()
+    res.send(result)
+  })
   app.post("/review", async (req, res) => {
       const reviewItem = req.body;
       const result = await reviewCollection.insertOne(reviewItem);
