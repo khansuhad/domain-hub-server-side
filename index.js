@@ -32,9 +32,9 @@ async function run() {
     // Fahim Code Start
 
     // Digontha Code start
-    const freeTrialUserCollection = client
-      .db("domainHub")
-      .collection("freeTrialUsers");
+    const freeTrialUserCollection = client.db("domainHub").collection("freeTrialUsers");
+
+
     // Digontha Code finish
 
     // monjur code start
@@ -97,17 +97,26 @@ async function run() {
     //  Digontha Code start
 
     app.post("/freeTrialUsers", async (req, res) => {
-      const user = req.body;
-      const email = req.body.email;
-      const cursor = { email: email };
+      const user = {
+        email: req.body.email,
+        userName: req.body.userName,
+        domainName: req.body.domainName,
+        approve: req.body.approve,
+     
+      };
+      const cursor = { email: user.email };
       const existing = await freeTrialUserCollection.findOne(cursor);
       if (existing) {
         return res.send({ message: "User already exists" });
       } else {
         console.log(user);
         const result = await freeTrialUserCollection.insertOne(user);
+        console.log(user.status);
         res.send(result);
+
       }
+
+
     });
 
     app.get("/freeTrialUsers", async (req, res) => {
@@ -118,40 +127,38 @@ async function run() {
         query = { email: email };
       }
       const result = await freeTrialUserCollection.find(query).toArray();
+      console.log(req.body.approve);
       res.send(result);
     });
 
     app.put("/freeTrialUsers", async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
-
+      const email = req.query.email
+      const query = { email: email }
+      const status = req.query.status
+      console.log(status);
       const updatedData = {
         $set: {
-          approve: true,
-        },
-      };
-      const result = await freeTrialUserCollection.updateOne(
-        query,
-        updatedData
-      );
+          approve: status,
+          createdAt: new Date(),
+        }
+      }
+      const result = await freeTrialUserCollection.updateOne(query, updatedData)
+
+      if(status == "Accepted"){
+        await freeTrialUserCollection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 40 });
+      }
+
+      res.send(result)
+    });
+
+    app.delete("/freeTrialUsers", async (req, res) => {
+      const email = req.query.email
+      const query = { email: email }
+      const result = await freeTrialUserCollection.deleteOne(query);
       res.send(result);
     });
 
-    app.patch("/freeTrialUsers", async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
 
-      const updatedData = {
-        $set: {
-          approve: false,
-        },
-      };
-      const result = await freeTrialUserCollection.updateOne(
-        query,
-        updatedData
-      );
-      res.send(result);
-    });
 
     //  Digontha Code finish
 
