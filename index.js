@@ -1,8 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -25,10 +26,15 @@ async function run() {
     const userCollection = client.db("domainHub").collection("users");
     // monjur code finish
 
+    // Fahim Code Start
+    const paymentTrueCollection = client.db("domainHub").collection("carts");
+    const reviewCollection = client.db("domainHub").collection("reviews");
+    // Fahim Code Start
+
     // Digontha Code start
-    const freeTrialUserCollection = client
-      .db("domainHub")
-      .collection("freeTrialUsers");
+    const freeTrialUserCollection = client.db("domainHub").collection("freeTrialUsers");
+
+
     // Digontha Code finish
 
     // monjur code start
@@ -91,17 +97,26 @@ async function run() {
     //  Digontha Code start
 
     app.post("/freeTrialUsers", async (req, res) => {
-      const user = req.body;
-      const email = req.body.email;
-      const cursor = { email: email };
+      const user = {
+        email: req.body.email,
+        userName: req.body.userName,
+        domainName: req.body.domainName,
+        approve: req.body.approve,
+     
+      };
+      const cursor = { email: user.email };
       const existing = await freeTrialUserCollection.findOne(cursor);
       if (existing) {
         return res.send({ message: "User already exists" });
       } else {
         console.log(user);
         const result = await freeTrialUserCollection.insertOne(user);
+        console.log(user.status);
         res.send(result);
+
       }
+
+
     });
 
     app.get("/freeTrialUsers", async (req, res) => {
@@ -112,34 +127,38 @@ async function run() {
         query = { email: email };
       }
       const result = await freeTrialUserCollection.find(query).toArray();
+      console.log(req.body.approve);
       res.send(result);
     });
 
     app.put("/freeTrialUsers", async (req, res) => {
       const email = req.query.email
       const query = { email: email }
-
+      const status = req.query.status
+      console.log(status);
       const updatedData = {
-          $set: {
-              approve: true,
-          }
+        $set: {
+          approve: status,
+          createdAt: new Date(),
+        }
       }
       const result = await freeTrialUserCollection.updateOne(query, updatedData)
-      res.send(result)
-  });
 
-    app.patch("/freeTrialUsers", async (req, res) => {
+      if(status == "Accepted"){
+        await freeTrialUserCollection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 40 });
+      }
+
+      res.send(result)
+    });
+
+    app.delete("/freeTrialUsers", async (req, res) => {
       const email = req.query.email
       const query = { email: email }
+      const result = await freeTrialUserCollection.deleteOne(query);
+      res.send(result);
+    });
 
-      const updatedData = {
-          $set: {
-              approve: false,
-          }
-      }
-      const result = await freeTrialUserCollection.updateOne(query, updatedData)
-      res.send(result)
-  });
+
 
     //  Digontha Code finish
 
@@ -178,7 +197,7 @@ async function run() {
           name: item.name,
           category: item.category,
           price: item.price,
-          description: item.description
+          description: item.description,
         },
       };
       // console.log(updatedDoc);
@@ -192,10 +211,16 @@ async function run() {
       const result = await domainCollection.deleteOne(query);
       res.send(result);
     });
-    
+
     // carts related api//Abubakar
+    // app.get("/carts", async (req, res) => {
+    //   const result = await cartsCollection.find().toArray();
+    //   res.send(result);
+    // });
     app.get("/carts", async (req, res) => {
-      const result = await cartsCollection.find().toArray();
+      const email = req.query.email;
+      const cursor = { payment : "false", email}
+      const result = await cartsCollection.find(cursor).toArray();
       res.send(result);
     });
 
@@ -219,6 +244,93 @@ async function run() {
       res.send(result);
     });
     // carts related api//Abubakar
+
+    app.put("/carts", async (req, res) => {
+      try {
+        const carts = req.body;
+        console.log("carts", carts);
+
+        // Loop through each item in the request body and update its payment status
+        for (const item of carts) {
+          const updatedDoc = {
+            $set: {
+              payment: "true",
+            },
+          };
+
+          // Update the document in the MongoDB collection
+          await cartsCollection.updateOne(
+            { _id: new ObjectId(item._id) },
+            updatedDoc
+          );
+        }
+        res.status(200).json({ message: "Carts updated successfully" });
+        console.log("Carts updated successfully");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    // payment intent
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price * 100);
+      console.log(amount, "amount inside the intent");
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "bdt",
+        payment_method_types: ["card"],
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
+    // Fahim Review part
+app.get('/paymentTrueCarts', async (req, res) => {
+  try {
+    const userEmail = req?.query?.email;
+    const paymentValue = req?.query?.payment
+    const query = {
+      email: userEmail,
+      payment: paymentValue,
+    };
+    const result = await paymentTrueCollection.find(query).toArray();
+    res.send(result)
+  }
+  catch(error){
+    console.log(error)
+  }})
+
+app.get('/myReview', async (req, res) => {
+  const email = req?.query?.email
+  const query = {userEmail: email}
+  const result = await reviewCollection.find(query).toArray()
+  res.send(result)
+})
+  app.get('/review', async (req, res) =>{
+    const result = await reviewCollection.find().toArray()
+    res.send(result)
+  })
+  app.post("/review", async (req, res) => {
+      const reviewItem = req.body;
+      const result = await reviewCollection.insertOne(reviewItem);
+      res.send(result);
+  });
+  app.put("/cart/:id", async (req, res) => {
+    const id = req.params.id;
+    const cursor = { _id: new ObjectId(id) };
+    const updatedDoc = {
+      $set: {
+        review: "true"
+      },
+    };
+    const result = await cartsCollection.updateOne(cursor, updatedDoc);
+    res.send(result);
+  });
+    // Fahim Review part
 
     // await client.connect();
     // Send a ping to confirm a successful connection
