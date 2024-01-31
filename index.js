@@ -97,7 +97,7 @@ async function run() {
         userName: req.body.userName,
         domainName: req.body.domainName,
         approve: req.body.approve,
-        // createdAt: new Date(),
+     
       };
       const cursor = { email: user.email };
       const existing = await freeTrialUserCollection.findOne(cursor);
