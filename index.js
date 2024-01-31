@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const cron = require('node-cron');
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -26,9 +27,9 @@ async function run() {
     // monjur code finish
 
     // Digontha Code start
-    const freeTrialUserCollection = client
-      .db("domainHub")
-      .collection("freeTrialUsers");
+    const freeTrialUserCollection = client.db("domainHub").collection("freeTrialUsers");
+
+
     // Digontha Code finish
 
     // monjur code start
@@ -91,17 +92,26 @@ async function run() {
     //  Digontha Code start
 
     app.post("/freeTrialUsers", async (req, res) => {
-      const user = req.body;
-      const email = req.body.email;
-      const cursor = { email: email };
+      const user = {
+        email: req.body.email,
+        userName: req.body.userName,
+        domainName: req.body.domainName,
+        approve: req.body.approve,
+        // createdAt: new Date(),
+      };
+      const cursor = { email: user.email };
       const existing = await freeTrialUserCollection.findOne(cursor);
       if (existing) {
         return res.send({ message: "User already exists" });
       } else {
         console.log(user);
         const result = await freeTrialUserCollection.insertOne(user);
+        console.log(user.status);
         res.send(result);
+
       }
+
+
     });
 
     app.get("/freeTrialUsers", async (req, res) => {
@@ -112,6 +122,7 @@ async function run() {
         query = { email: email };
       }
       const result = await freeTrialUserCollection.find(query).toArray();
+      console.log(req.body.approve);
       res.send(result);
     });
 
@@ -123,9 +134,15 @@ async function run() {
       const updatedData = {
         $set: {
           approve: status,
+          createdAt: new Date(),
         }
       }
       const result = await freeTrialUserCollection.updateOne(query, updatedData)
+
+      if(status == "Accepted"){
+        await freeTrialUserCollection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 40 });
+      }
+
       res.send(result)
     });
 
@@ -135,6 +152,8 @@ async function run() {
       const result = await freeTrialUserCollection.deleteOne(query);
       res.send(result);
     });
+
+
 
     //  Digontha Code finish
 
