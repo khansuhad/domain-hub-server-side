@@ -11,6 +11,9 @@
 - USER_PASS = xxx
 
 
+### Stripe Secret key
+- STRIPE_SECRET_KEY = xxx
+
 ## Project setup
 
 ### Follow the process
@@ -18,6 +21,7 @@
 - npm i (for install all packages)
 - code . (for open code)
 - nodemon index.js or node index.js  (for run server in local host)
+
 
 
 
