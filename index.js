@@ -145,6 +145,7 @@ async function run() {
       const result = await freeTrialUserCollection.updateOne(query, updatedData)
 
       if(status == "Accepted"){
+        console.log(status);
         await freeTrialUserCollection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 40 });
       }
 
