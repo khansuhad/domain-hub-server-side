@@ -29,14 +29,27 @@ async function run() {
     // Fahim Code Start
     const paymentTrueCollection = client.db("domainHub").collection("carts");
     const reviewCollection = client.db("domainHub").collection("reviews");
-    // Fahim Code Start
+    // Fahim Code finish
+    // Suhad Code Start
+    const notificationCollection = client.db("domainHub").collection("notifications");
+    // Suhad Code Finish
 
     // Digontha Code start
     const freeTrialUserCollection = client.db("domainHub").collection("freeTrialUsers");
 
 
     // Digontha Code finish
-
+// suhad code start
+app.get("/notifications", async (req, res) => {
+  const result = await notificationCollection.find().toArray();
+  res.send(result);
+});
+app.post("/notifications", async (req, res) => {
+  const item = req.body;
+  const result = await notificationCollection.insertOne(item);
+  res.send(result);
+});
+// suhad code finish
     // monjur code start
     app.get("/users", async (req, res) => {
       const result = await userCollection.find().toArray();
