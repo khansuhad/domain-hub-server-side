@@ -40,6 +40,19 @@ async function run() {
 
     // Digontha Code finish
 // suhad code start
+app.get("/notifications/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await notificationCollection.findOne(query);
+  res.send(result);
+});
+app.delete("/notifications/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const query = { _id: new ObjectId(id) };
+  const result = await notificationCollection.deleteOne(query);
+  res.send(result);
+});
 app.get("/notifications", async (req, res) => {
   const result = await notificationCollection.find().toArray();
   res.send(result);
