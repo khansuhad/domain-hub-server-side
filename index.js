@@ -64,6 +64,7 @@ app.post("/notifications", async (req, res) => {
 });
 // suhad code finish
     // monjur code start
+
     app.get("/users", async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
@@ -74,6 +75,18 @@ app.post("/notifications", async (req, res) => {
       const result = await userCollection.findOne(cursor);
       res.send(result);
     });
+    
+    app.get('/users/admin/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const user = await userCollection.findOne(query);
+      let admin = false;
+      if (user) {
+        admin = user?.role === 'admin';
+      }
+      res.send({ admin });
+    })
+
     app.post("/users", async (req, res) => {
       const user = req.body;
       const email = req.body.email;
@@ -91,6 +104,7 @@ app.post("/notifications", async (req, res) => {
       const user = req.body;
       const email = req.body.email;
       const cursor = { email: email };
+      console.log(user, email);
       const updatedDoc = {
         $set: {
           name: user.name,
