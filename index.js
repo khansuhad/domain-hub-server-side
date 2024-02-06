@@ -7,22 +7,16 @@ const cookieParser = require("cookie-parser");
 const app = express();
 const port = process.env.PORT || 3000;
 
-
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 //middleware
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-    ],
+    origin: ["http://localhost:5173", "http://localhost:5174","https://domain-hub-a81ae.web.app"],
     credentials: true,
   })
 );
 app.use(express.json());
 app.use(cookieParser());
-
-
 
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.ws4mpjc.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -34,7 +28,6 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
-
 
 const verifyToken = (req, res, next) => {
   const token = req?.cookies?.token;
@@ -49,6 +42,7 @@ const verifyToken = (req, res, next) => {
     next();
   });
 };
+
 
 
 async function run() {
@@ -67,42 +61,62 @@ async function run() {
     // Suhad Code Finish
 
     // Digontha Code start
-    const freeTrialUserCollection = client.db("domainHub").collection("freeTrialUsers");
-
+    const freeTrialUserCollection = client
+      .db("domainHub")
+      .collection("freeTrialUsers");
 
     // Digontha Code finish
+    // monjur 
 // suhad code start
-app.get("/notifications/:id", async (req, res) => {
+app.get("/notifications/id/:id", async (req, res) => {
   const id = req.params.id;
   const query = { _id: new ObjectId(id) };
   const result = await notificationCollection.findOne(query);
   res.send(result);
 });
-// app.delete("/notifications/deleteall", async (req, res) => {
 
-//   const result = await unreadNotificationCollection.deleteMany({});
-//   res.send(result);
-// });
-app.delete("/notifications/:id", async (req, res) => {
+
+app.delete("/notifications/alldatadelete", async (req, res) => {
+
+  const result = await notificationCollection.deleteMany({});
+  res.send(result);
+});
+app.delete("/notifications/id/:id", async (req, res) => {
   const id = req.params.id;
   console.log(id);
   const query = { _id: new ObjectId(id) };
   const result = await notificationCollection.deleteOne(query);
   res.send(result);
 });
+// app.get("/notifications/unreadnotification", async (req, res) => {
+//   const query 
+//   const result = await notificationCollection.find().toArray();
+//   res.send(result);
+// });
 app.get("/notifications", async (req, res) => {
   const result = await notificationCollection.find().toArray();
   res.send(result);
 });
-app.get("/unreadnotifications", async (req, res) => {
-  const result = await unreadNotificationCollection.find().toArray();
+app.patch("/notifications/updatestatus", async (req, res) => {
+  const update = req.body ;
+  console.log(update);
+  const cursor = { status: "unread" };
+  const updatedDoc = {
+    $set: {
+      status : update.status,
+
+    },
+  };
+  const result = await notificationCollection.updateMany(cursor, updatedDoc);
   res.send(result);
 });
-app.post("/unreadnotifications", async (req, res) => {
-  const item = req.body;
-  const result = await unreadNotificationCollection.insertOne(item);
+
+app.get("/allunreadnotifications", async (req, res) => {
+  const filter = { status : "unread"}
+  const result = await notificationCollection.find(filter).toArray();
   res.send(result);
 });
+
 app.post("/notifications", async (req, res) => {
   const item = req.body;
   const result = await notificationCollection.insertOne(item);
@@ -112,6 +126,18 @@ app.post("/notifications", async (req, res) => {
     // monjur code 
     
     
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.user.email;
+      console.log("sdfsdf", email);
+      const filter = { email: email };
+      const user = await userCollection.findOne(filter);
+      const isAdmin = user?.role === "admin";
+      if (!isAdmin) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+      next();
+    };
+
     //Auth related api
     app.post("/jwt", async (req, res) => {
       const user = req.body;
@@ -136,27 +162,27 @@ app.post("/notifications", async (req, res) => {
       res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
-    app.get("/users", verifyToken, async (req, res) => {
+    app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
-    app.get("/users/:email", async (req, res) => {
+    app.get("/users/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const cursor = { email: email };
       const result = await userCollection.findOne(cursor);
       res.send(result);
     });
-    
-    app.get('/users/admin/:email', async (req, res) => {
+
+    app.get("/users/admin/:email",verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const user = await userCollection.findOne(query);
       let admin = false;
       if (user) {
-        admin = user?.role === 'admin';
+        admin = user?.role === "admin";
       }
       res.send({ admin });
-    })
+    });
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -171,7 +197,7 @@ app.post("/notifications", async (req, res) => {
         res.send(result);
       }
     });
-    app.put("/users", async (req, res) => {
+    app.put("/users", verifyToken, async (req, res) => {
       const user = req.body;
       const email = req.body.email;
       const cursor = { email: email };
@@ -186,7 +212,7 @@ app.post("/notifications", async (req, res) => {
       res.send(result);
     });
 
-    app.put("/users-role/:id", async (req, res) => {
+    app.put("/users-role/:id", verifyToken, verifyAdmin, async (req, res) => {
       const info = req.body;
       const id = req.params.id;
       console.log(id);
@@ -213,7 +239,6 @@ app.post("/notifications", async (req, res) => {
         userName: req.body.userName,
         domainName: req.body.domainName,
         approve: req.body.approve,
-     
       };
       const cursor = { email: user.email };
       const existing = await freeTrialUserCollection.findOne(cursor);
@@ -224,10 +249,7 @@ app.post("/notifications", async (req, res) => {
         const result = await freeTrialUserCollection.insertOne(user);
         console.log(user.status);
         res.send(result);
-
       }
-
-
     });
 
     app.get("/freeTrialUsers", async (req, res) => {
@@ -243,34 +265,38 @@ app.post("/notifications", async (req, res) => {
     });
 
     app.put("/freeTrialUsers", async (req, res) => {
-      const email = req.query.email
-      const query = { email: email }
-      const status = req.query.status
+      const email = req.query.email;
+      const query = { email: email };
+      const status = req.query.status;
       console.log(status);
       const updatedData = {
         $set: {
           approve: status,
           createdAt: new Date(),
-        }
-      }
-      const result = await freeTrialUserCollection.updateOne(query, updatedData)
+        },
+      };
+      const result = await freeTrialUserCollection.updateOne(
+        query,
+        updatedData
+      );
 
-      if(status == "Accepted"){
+      if (status == "Accepted") {
         console.log(status);
-        await freeTrialUserCollection.createIndex({ createdAt: 1 }, { expireAfterSeconds: 40 });
+        await freeTrialUserCollection.createIndex(
+          { createdAt: 1 },
+          { expireAfterSeconds: 40 }
+        );
       }
 
-      res.send(result)
-    });
-
-    app.delete("/freeTrialUsers", async (req, res) => {
-      const email = req.query.email
-      const query = { email: email }
-      const result = await freeTrialUserCollection.deleteOne(query);
       res.send(result);
     });
 
-
+    app.delete("/freeTrialUsers", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await freeTrialUserCollection.deleteOne(query);
+      res.send(result);
+    });
 
     //  Digontha Code finish
 
@@ -331,7 +357,7 @@ app.post("/notifications", async (req, res) => {
     // });
     app.get("/carts", async (req, res) => {
       const email = req.query.email;
-      const cursor = { payment : "false", email}
+      const cursor = { payment: "false", email };
       const result = await cartsCollection.find(cursor).toArray();
       res.send(result);
     });
@@ -401,47 +427,47 @@ app.post("/notifications", async (req, res) => {
     });
 
     // Fahim Review part
-app.get('/paymentTrueCarts', async (req, res) => {
-  try {
-    const userEmail = req?.query?.email;
-    const paymentValue = req?.query?.payment
-    const query = {
-      email: userEmail,
-      payment: paymentValue,
-    };
-    const result = await paymentTrueCollection.find(query).toArray();
-    res.send(result)
-  }
-  catch(error){
-    console.log(error)
-  }})
+    app.get("/paymentTrueCarts", async (req, res) => {
+      try {
+        const userEmail = req?.query?.email;
+        const paymentValue = req?.query?.payment;
+        const query = {
+          email: userEmail,
+          payment: paymentValue,
+        };
+        const result = await paymentTrueCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
+        console.log(error);
+      }
+    });
 
-app.get('/myReview', async (req, res) => {
-  const email = req?.query?.email
-  const query = {userEmail: email}
-  const result = await reviewCollection.find(query).toArray()
-  res.send(result)
-})
-  app.get('/review', async (req, res) =>{
-    const result = await reviewCollection.find().toArray()
-    res.send(result)
-  })
-  app.post("/review", async (req, res) => {
+    app.get("/myReview", async (req, res) => {
+      const email = req?.query?.email;
+      const query = { userEmail: email };
+      const result = await reviewCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/review", async (req, res) => {
+      const result = await reviewCollection.find().toArray();
+      res.send(result);
+    });
+    app.post("/review", async (req, res) => {
       const reviewItem = req.body;
       const result = await reviewCollection.insertOne(reviewItem);
       res.send(result);
-  });
-  app.put("/cart/:id", async (req, res) => {
-    const id = req.params.id;
-    const cursor = { _id: new ObjectId(id) };
-    const updatedDoc = {
-      $set: {
-        review: "true"
-      },
-    };
-    const result = await cartsCollection.updateOne(cursor, updatedDoc);
-    res.send(result);
-  });
+    });
+    app.put("/cart/:id", async (req, res) => {
+      const id = req.params.id;
+      const cursor = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          review: "true",
+        },
+      };
+      const result = await cartsCollection.updateOne(cursor, updatedDoc);
+      res.send(result);
+    });
     // Fahim Review part
 
     // await client.connect();
