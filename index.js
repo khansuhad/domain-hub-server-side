@@ -79,6 +79,32 @@ async function run() {
     });
     // suhad code finish
     // monjur 
+// suhad code start
+app.get("/notifications/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await notificationCollection.findOne(query);
+  res.send(result);
+});
+app.delete("/notifications/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const query = { _id: new ObjectId(id) };
+  const result = await notificationCollection.deleteOne(query);
+  res.send(result);
+});
+app.get("/notifications", async (req, res) => {
+  const result = await notificationCollection.find().toArray();
+  res.send(result);
+});
+app.post("/notifications", async (req, res) => {
+  const item = req.body;
+  const result = await notificationCollection.insertOne(item);
+  res.send(result);
+});
+// suhad code finish
+    // monjur code 
+    
     
     const verifyAdmin = async (req, res, next) => {
       const email = req.user.email;
