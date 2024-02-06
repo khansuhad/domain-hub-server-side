@@ -57,7 +57,6 @@ async function run() {
     // Fahim Code finish
     // Suhad Code Start
     const notificationCollection = client.db("domainHub").collection("notifications");
-    const unreadNotificationCollection = client.db("domainHub").collection("unreadNotifications");
     // Suhad Code Finish
 
     // Digontha Code start
@@ -88,11 +87,7 @@ app.delete("/notifications/id/:id", async (req, res) => {
   const result = await notificationCollection.deleteOne(query);
   res.send(result);
 });
-// app.get("/notifications/unreadnotification", async (req, res) => {
-//   const query 
-//   const result = await notificationCollection.find().toArray();
-//   res.send(result);
-// });
+
 app.get("/notifications", async (req, res) => {
   const result = await notificationCollection.find().toArray();
   res.send(result);
