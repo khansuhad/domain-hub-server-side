@@ -15,6 +15,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:5174",
       "https://domain-hub-a81ae.web.app",
+      "https://domain-hub-a81ae.firebaseapp.com",
     ],
     credentials: true,
   })
@@ -46,7 +47,6 @@ const verifyToken = (req, res, next) => {
     next();
   });
 };
-
 
 
 async function run() {
@@ -137,29 +137,29 @@ app.post("/notifications", async (req, res) => {
       next();
     };
 
-    //Auth related api
-    app.post("/jwt", async (req, res) => {
-      const user = req.body;
-      console.log("user for token", user);
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1h",
-      });
-
-      res
-        .cookie("token", token, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "none",
-          maxAge: 60 * 60 * 1000,
-        })
-        .send({ success: true });
+  //Auth related api
+  app.post("/jwt", async (req, res) => {
+    const user = req.body;
+    console.log("user for token", user);
+    const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: "1h",
     });
 
-    app.post("/logout", async (req, res) => {
-      const user = req.body;
-      console.log("logout ", user);
-      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
-    });
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 60 * 60 * 1000,
+      })
+      .send({ success: true });
+  });
+
+  app.post("/logout", async (req, res) => {
+    const user = req.body;
+    console.log("logout ", user);
+    res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+  });
 
     app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
       const result = await userCollection.find().toArray();
