@@ -179,20 +179,34 @@ app.post("/notifications", async (req, res) => {
       expiresIn: "1h",
     });
 
+   
     res
       .cookie("token", token, {
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        maxAge: 60 * 60 * 1000,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       })
       .send({ success: true });
+      // .cookie("token", token, {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+       
+      // })
+      // .send({ success: true });
   });
 
   app.post("/logout", async (req, res) => {
-    const user = req.body;
+    const user = req?.body;
     console.log("logout ", user);
-    res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+    res
+    .clearCookie("token", {
+      maxAge: 0,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+    })
+    .send({ success: true });
+    // res.clearCookie("token", { maxAge: 0 }).send({ success: true });
   });
 
     app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
