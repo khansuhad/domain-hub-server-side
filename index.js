@@ -11,7 +11,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 //middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: ["http://localhost:5173", "http://localhost:5174","https://domain-hub-a81ae.web.app"],
     credentials: true,
   })
 );
@@ -54,9 +54,7 @@ async function run() {
     const reviewCollection = client.db("domainHub").collection("reviews");
     // Fahim Code finish
     // Suhad Code Start
-    const notificationCollection = client
-      .db("domainHub")
-      .collection("notifications");
+    const notificationCollection = client.db("domainHub").collection("notifications");
     // Suhad Code Finish
 
     // Digontha Code start
@@ -65,6 +63,7 @@ async function run() {
       .collection("freeTrialUsers");
 
     // Digontha Code finish
+<<<<<<< HEAD
     // suhad code start
     app.get("/notifications", async (req, res) => {
       const result = await notificationCollection.find().toArray();
@@ -103,6 +102,64 @@ async function run() {
     // suhad code finish
     // monjur code
 
+=======
+    // monjur 
+// suhad code start
+app.get("/notifications/id/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: new ObjectId(id) };
+  const result = await notificationCollection.findOne(query);
+  res.send(result);
+});
+
+
+app.delete("/notifications/alldatadelete", async (req, res) => {
+
+  const result = await notificationCollection.deleteMany({});
+  res.send(result);
+});
+app.delete("/notifications/id/:id", async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const query = { _id: new ObjectId(id) };
+  const result = await notificationCollection.deleteOne(query);
+  res.send(result);
+});
+
+app.get("/notifications", async (req, res) => {
+  const result = await notificationCollection.find().toArray();
+  res.send(result);
+});
+app.patch("/notifications/updatestatus", async (req, res) => {
+  const update = req.body ;
+  console.log(update);
+  const cursor = { status: "unread" };
+  const updatedDoc = {
+    $set: {
+      status : update.status,
+
+    },
+  };
+  const result = await notificationCollection.updateMany(cursor, updatedDoc);
+  res.send(result);
+});
+
+app.get("/allunreadnotifications", async (req, res) => {
+  const filter = { status : "unread"}
+  const result = await notificationCollection.find(filter).toArray();
+  res.send(result);
+});
+
+app.post("/notifications", async (req, res) => {
+  const item = req.body;
+  const result = await notificationCollection.insertOne(item);
+  res.send(result);
+});
+// suhad code finish
+    // monjur code 
+    
+    
+>>>>>>> 7c9e9eee70ddb17cc5e6d32db2b4fc0354261650
     const verifyAdmin = async (req, res, next) => {
       const email = req.user.email;
       console.log("sdfsdf", email);
