@@ -63,7 +63,6 @@ async function run() {
       .collection("freeTrialUsers");
 
     // Digontha Code finish
-<<<<<<< HEAD
     // suhad code start
     app.get("/notifications", async (req, res) => {
       const result = await notificationCollection.find().toArray();
@@ -75,7 +74,6 @@ async function run() {
       res.send(result);
     });
     // suhad code finish
-    // monjur
     // suhad code start
     app.get("/notifications/:id", async (req, res) => {
       const id = req.params.id;
@@ -100,10 +98,6 @@ async function run() {
       res.send(result);
     });
     // suhad code finish
-    // monjur code
-
-=======
-    // monjur 
 // suhad code start
 app.get("/notifications/id/:id", async (req, res) => {
   const id = req.params.id;
@@ -159,7 +153,6 @@ app.post("/notifications", async (req, res) => {
     // monjur code 
     
     
->>>>>>> 7c9e9eee70ddb17cc5e6d32db2b4fc0354261650
     const verifyAdmin = async (req, res, next) => {
       const email = req.user.email;
       console.log("sdfsdf", email);
