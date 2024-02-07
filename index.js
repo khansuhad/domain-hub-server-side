@@ -43,8 +43,6 @@ const verifyToken = (req, res, next) => {
   });
 };
 
-
-
 async function run() {
   try {
     // monjur code start
@@ -65,7 +63,41 @@ async function run() {
       .collection("freeTrialUsers");
 
     // Digontha Code finish
-    // monjur 
+    // suhad code start
+    app.get("/notifications", async (req, res) => {
+      const result = await notificationCollection.find().toArray();
+      res.send(result);
+    });
+    app.post("/notifications", async (req, res) => {
+      const item = req.body;
+      const result = await notificationCollection.insertOne(item);
+      res.send(result);
+    });
+    // suhad code finish
+    // suhad code start
+    app.get("/notifications/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await notificationCollection.findOne(query);
+      res.send(result);
+    });
+    app.delete("/notifications/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const result = await notificationCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.get("/notifications", async (req, res) => {
+      const result = await notificationCollection.find().toArray();
+      res.send(result);
+    });
+    app.post("/notifications", async (req, res) => {
+      const item = req.body;
+      const result = await notificationCollection.insertOne(item);
+      res.send(result);
+    });
+    // suhad code finish
 // suhad code start
 app.get("/notifications/id/:id", async (req, res) => {
   const id = req.params.id;
@@ -168,7 +200,7 @@ app.post("/notifications", async (req, res) => {
       res.send(result);
     });
 
-    app.get("/users/admin/:email",verifyToken, async (req, res) => {
+    app.get("/users/admin/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const user = await userCollection.findOne(query);
@@ -222,6 +254,17 @@ app.post("/notifications", async (req, res) => {
       const result = await userCollection.updateOne(cursor, updatedDoc);
       console.log(result);
       res.send(result);
+    });
+
+    app.get("/admin/states", async (req, res) => {
+      const totalDomain = await domainCollection.countDocuments();
+      const totalDomainSold = await cartsCollection.countDocuments({payment: "true"});
+      const totalUser = await userCollection.countDocuments();
+      const totalReview = await reviewCollection.countDocuments();
+      const totalFreeTailRequest = await freeTrialUserCollection.countDocuments(
+        { approve: "Pending" }
+      );
+      res.send({ totalDomain, totalUser ,totalFreeTailRequest, totalReview, totalDomainSold});
     });
 
     // monjur code finish
