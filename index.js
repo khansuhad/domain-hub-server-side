@@ -88,8 +88,7 @@ async function run() {
       const result = await notificationCollection.insertOne(item);
       res.send(result);
     });
-    // suhad code finish
-    // suhad code start
+  
     app.get("/notifications/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -103,17 +102,8 @@ async function run() {
       const result = await notificationCollection.deleteOne(query);
       res.send(result);
     });
-    app.get("/notifications", async (req, res) => {
-      const result = await notificationCollection.find().toArray();
-      res.send(result);
-    });
-    app.post("/notifications", async (req, res) => {
-      const item = req.body;
-      const result = await notificationCollection.insertOne(item);
-      res.send(result);
-    });
+
     // suhad code finish
-<<<<<<< HEAD
 // suhad code start
 
 app.delete("/notifications", async (req, res) => {
@@ -121,34 +111,8 @@ console.log("ashce");
   const result = await notificationCollection.deleteMany({});
   res.send(result);
 });
-=======
-    // suhad code start
-    app.get("/notifications/id/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await notificationCollection.findOne(query);
-      res.send(result);
-    });
 
-
-    app.delete("/notifications/alldatadelete", async (req, res) => {
-
-      const result = await notificationCollection.deleteMany({});
-      res.send(result);
-    });
-    app.delete("/notifications/id/:id", async (req, res) => {
-      const id = req.params.id;
-      console.log(id);
-      const query = { _id: new ObjectId(id) };
-      const result = await notificationCollection.deleteOne(query);
-      res.send(result);
-    });
->>>>>>> 6c89b8390400370caecbe9e5f3c8e1260ab27be1
-
-    app.get("/notifications", async (req, res) => {
-      const result = await notificationCollection.find().toArray();
-      res.send(result);
-    });
+ 
     app.patch("/notifications/updatestatus", async (req, res) => {
       const update = req.body;
       console.log(update);
@@ -163,7 +127,6 @@ console.log("ashce");
       res.send(result);
     });
 
-<<<<<<< HEAD
 app.get("/allunreadnotifications/:email", async (req, res) => {
   const email = req.params.email ;
   console.log(email);
@@ -173,19 +136,8 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
   const result = await notificationCollection.find(filter).toArray();
   res.send(result);
 });
-=======
-    app.get("/allunreadnotifications", async (req, res) => {
-      const filter = { status: "unread" }
-      const result = await notificationCollection.find(filter).toArray();
-      res.send(result);
-    });
->>>>>>> 6c89b8390400370caecbe9e5f3c8e1260ab27be1
 
-    app.post("/notifications", async (req, res) => {
-      const item = req.body;
-      const result = await notificationCollection.insertOne(item);
-      res.send(result);
-    });
+   
     // suhad code finish
     // monjur code 
 
@@ -210,7 +162,6 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
         expiresIn: "1h",
       });
 
-<<<<<<< HEAD
    
     res
       .cookie("token", token, {
@@ -227,24 +178,6 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
   //     })
   //     .send({ success: true });
   });
-=======
-
-      res
-        .cookie("token", token, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-        })
-        .send({ success: true });
-      // .cookie("token", token, {
-      //   httpOnly: true,
-      //   secure: true,
-      //   sameSite: "none",
-
-      // })
-      // .send({ success: true });
-    });
->>>>>>> 6c89b8390400370caecbe9e5f3c8e1260ab27be1
 
     app.post("/logout", async (req, res) => {
       const user = req?.body;
