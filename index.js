@@ -79,8 +79,11 @@ async function run() {
 
     // Digontha Code finish
     // suhad code start
-    app.get("/notifications", async (req, res) => {
-      const result = await notificationCollection.find().toArray();
+    app.get("/notifications/:email", async (req, res) => {
+      const email = req.params.email ;
+      console.log(email);
+      const filter = { email : email }
+      const result = await notificationCollection.find(filter).toArray();
       res.send(result);
     });
     app.post("/notifications", async (req, res) => {
