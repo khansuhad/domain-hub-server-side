@@ -11,7 +11,13 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 //middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174","https://domain-hub-a81ae.web.app"],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://domain-hub-a81ae.web.app",
+      "https://domain-hub-a81ae.firebaseapp.com",
+      
+    ],
     credentials: true,
   })
 );
@@ -43,6 +49,13 @@ const verifyToken = (req, res, next) => {
   });
 };
 
+// DigOnTha code start
+const SSLCommerzPayment = require('sslcommerz-lts')
+const store_id = process.env.STORE_ID
+const store_passwd = process.env.STORE_PASS
+const is_live = false
+// DigOnTha code finish
+
 async function run() {
   try {
     // monjur code start
@@ -62,6 +75,8 @@ async function run() {
       .db("domainHub")
       .collection("freeTrialUsers");
 
+      const orderCollection = client.db("domainHub").collection("order");
+
     // Digontha Code finish
     // suhad code start
     app.get("/notifications", async (req, res) => {
@@ -73,8 +88,7 @@ async function run() {
       const result = await notificationCollection.insertOne(item);
       res.send(result);
     });
-    // suhad code finish
-    // suhad code start
+  
     app.get("/notifications/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -88,71 +102,46 @@ async function run() {
       const result = await notificationCollection.deleteOne(query);
       res.send(result);
     });
-    app.get("/notifications", async (req, res) => {
-      const result = await notificationCollection.find().toArray();
-      res.send(result);
-    });
-    app.post("/notifications", async (req, res) => {
-      const item = req.body;
-      const result = await notificationCollection.insertOne(item);
-      res.send(result);
-    });
+
     // suhad code finish
 // suhad code start
-app.get("/notifications/id/:id", async (req, res) => {
-  const id = req.params.id;
-  const query = { _id: new ObjectId(id) };
-  const result = await notificationCollection.findOne(query);
-  res.send(result);
-});
 
-
-app.delete("/notifications/alldatadelete", async (req, res) => {
-
+app.delete("/notifications", async (req, res) => {
+console.log("ashce");
   const result = await notificationCollection.deleteMany({});
   res.send(result);
 });
-app.delete("/notifications/id/:id", async (req, res) => {
-  const id = req.params.id;
-  console.log(id);
-  const query = { _id: new ObjectId(id) };
-  const result = await notificationCollection.deleteOne(query);
-  res.send(result);
-});
 
-app.get("/notifications", async (req, res) => {
-  const result = await notificationCollection.find().toArray();
-  res.send(result);
-});
-app.patch("/notifications/updatestatus", async (req, res) => {
-  const update = req.body ;
-  console.log(update);
-  const cursor = { status: "unread" };
-  const updatedDoc = {
-    $set: {
-      status : update.status,
+ 
+    app.patch("/notifications/updatestatus", async (req, res) => {
+      const update = req.body;
+      console.log(update);
+      const cursor = { status: "unread" };
+      const updatedDoc = {
+        $set: {
+          status: update.status,
 
-    },
-  };
-  const result = await notificationCollection.updateMany(cursor, updatedDoc);
-  res.send(result);
-});
+        },
+      };
+      const result = await notificationCollection.updateMany(cursor, updatedDoc);
+      res.send(result);
+    });
 
-app.get("/allunreadnotifications", async (req, res) => {
-  const filter = { status : "unread"}
+app.get("/allunreadnotifications/:email", async (req, res) => {
+  const email = req.params.email ;
+  console.log(email);
+  const filter = { status : "unread",
+    email : email     
+}
   const result = await notificationCollection.find(filter).toArray();
   res.send(result);
 });
 
-app.post("/notifications", async (req, res) => {
-  const item = req.body;
-  const result = await notificationCollection.insertOne(item);
-  res.send(result);
-});
-// suhad code finish
+   
+    // suhad code finish
     // monjur code 
-    
-    
+
+
     const verifyAdmin = async (req, res, next) => {
       const email = req.user.email;
       console.log("sdfsdf", email);
@@ -173,20 +162,34 @@ app.post("/notifications", async (req, res) => {
         expiresIn: "1h",
       });
 
-      res
-        .cookie("token", token, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "none",
-          maxAge: 60 * 60 * 1000,
-        })
-        .send({ success: true });
-    });
+   
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      })
+      .send({ success: true });
+  //     .cookie("token", token, {
+  //       httpOnly: true,
+  //       secure: true,
+  //       sameSite: "none",
+       
+  //     })
+  //     .send({ success: true });
+  });
 
     app.post("/logout", async (req, res) => {
-      const user = req.body;
+      const user = req?.body;
       console.log("logout ", user);
-      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+      res
+        .clearCookie("token", {
+          maxAge: 0,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        })
+        .send({ success: true });
+      // res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
     app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
@@ -258,13 +261,13 @@ app.post("/notifications", async (req, res) => {
 
     app.get("/admin/states", async (req, res) => {
       const totalDomain = await domainCollection.countDocuments();
-      const totalDomainSold = await cartsCollection.countDocuments({payment: "true"});
+      const totalDomainSold = await cartsCollection.countDocuments({ payment: "true" });
       const totalUser = await userCollection.countDocuments();
       const totalReview = await reviewCollection.countDocuments();
       const totalFreeTailRequest = await freeTrialUserCollection.countDocuments(
         { approve: "Pending" }
       );
-      res.send({ totalDomain, totalUser ,totalFreeTailRequest, totalReview, totalDomainSold});
+      res.send({ totalDomain, totalUser, totalFreeTailRequest, totalReview, totalDomainSold });
     });
 
     // monjur code finish
@@ -334,6 +337,70 @@ app.post("/notifications", async (req, res) => {
       const query = { email: email };
       const result = await freeTrialUserCollection.deleteOne(query);
       res.send(result);
+    });
+
+    const tran_id = new ObjectId().toString();
+
+    app.post("/order", async (req, res) => {
+      console.log(req.body);
+      const data = {
+        total_amount: req.body.totalPrice,
+        currency: 'BDT',
+        tran_id: tran_id, // use unique tran_id for each api call
+        success_url: 'http://localhost:3000/success',
+        fail_url: 'http://localhost:3000/fail',
+        cancel_url: 'http://localhost:3000/cancel',
+        ipn_url: 'http://localhost:3000/ipn',
+        shipping_method: 'Courier',
+        product_name: 'Computer.',
+        product_category: 'Electronic',
+        product_profile: 'general',
+        cus_name: 'Customer Name',
+        cus_email: req.body.email,
+        cus_add1: 'Dhaka',
+        cus_add2: 'Dhaka',
+        cus_city: 'Dhaka',
+        cus_state: 'Dhaka',
+        cus_postcode: '1000',
+        cus_country: 'Bangladesh',
+        cus_phone: '01711111111',
+        cus_fax: '01711111111',
+        ship_name: 'Customer Name',
+        ship_add1: 'Dhaka',
+        ship_add2: 'Dhaka',
+        ship_city: 'Dhaka',
+        ship_state: 'Dhaka',
+        ship_postcode: 1000,
+        ship_country: 'Bangladesh',
+    };
+    console.log(data);
+    const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live)
+    sslcz.init(data).then(apiResponse => {
+        // Redirect the user to payment gateway
+        let GatewayPageURL = apiResponse.GatewayPageURL
+        res.send({url:GatewayPageURL})
+        console.log('Redirecting to: ', GatewayPageURL)
+    });
+
+    app.post("/success",async(req,res)=>{
+      const query = { email: data.cus_email };
+      const updatedData = {
+        $set: {   
+          payment: "true"
+        },
+      };
+      const result = await cartsCollection.updateMany(
+        query,
+        updatedData
+      );
+      if(result.modifiedCount>0){
+        res.redirect("http://localhost:5173/dashboard/my-all-domains")
+      }
+      // res.send(result)
+      console.log(result);
+    })
+    
+
     });
 
     //  Digontha Code finish
