@@ -14,6 +14,10 @@
 ### Stripe Secret key
 - STRIPE_SECRET_KEY = xxx
 
+### Access token
+- ACCESS_TOKEN_SECRET= xxx
+
+
 ## Project setup
 
 ### Follow the process
