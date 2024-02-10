@@ -17,6 +17,10 @@
 ### Access token
 - ACCESS_TOKEN_SECRET= xxx
 
+### CMS payment system
+- STORE_ID= xxx
+- STORE_PASS= xxx
+
 
 ## Project setup
 
