@@ -260,6 +260,20 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
       console.log(result);
       res.send(result);
     });
+    app.put("/get-premium", verifyToken, async (req, res) => {
+      const email = req?.query?.email;
+      console.log("email", email);
+      const cursor = { email };
+      const updatedDoc = {
+        $set: {
+          premium: true,
+        },
+      };
+      console.log(updatedDoc);
+      const result = await userCollection.updateOne(cursor, updatedDoc);
+      console.log(result);
+      res.send(result);
+    });
 
     app.get("/admin/states", async (req, res) => {
       const totalDomain = await domainCollection.countDocuments();
