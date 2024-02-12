@@ -515,13 +515,14 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
           const updatedDoc = {
             $set: {
               payment: "true",
-              purchaseDate: Date.now()
+              purchaseDate: Date.now(),
+              years: Number(item.time)
             },
           };
 
           // Update the document in the MongoDB collection
           await cartsCollection.updateOne(
-            { _id: new ObjectId(item._id) },
+            { _id: new ObjectId(item.id) },
             updatedDoc
           );
         }
