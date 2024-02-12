@@ -514,6 +514,7 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
           const updatedDoc = {
             $set: {
               payment: "true",
+              purchaseDate: Date.now()
             },
           };
 
