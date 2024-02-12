@@ -14,12 +14,14 @@
 ### Stripe Secret key
 - STRIPE_SECRET_KEY = xxx
 
-### Access token
-- ACCESS_TOKEN_SECRET= xxx
 
-### SSL payment system
+### SSL payment system key
 - STORE_ID= xxx
 - STORE_PASS= xxx
+
+
+### Access token
+- ACCESS_TOKEN_SECRET= 
 
 
 ## Project setup
