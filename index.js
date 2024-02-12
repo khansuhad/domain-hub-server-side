@@ -194,6 +194,11 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
       // res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
+    app.get("/usersLength",  async (req, res) => {
+      const count = await userCollection.countDocuments();
+      console.log(count);
+      res.send({ length: count });
+    });
     app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
@@ -477,6 +482,10 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
     //   const result = await cartsCollection.find().toArray();
     //   res.send(result);
     // });
+    app.get("/sellingsLength", async (req, res) => {
+      const result = await cartsCollection.countDocuments();
+      res.send({length : result});
+    });
     app.get("/carts", async (req, res) => {
       const email = req.query.email;
       const cursor = { payment: "false", email };
@@ -571,6 +580,10 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
       const query = { userEmail: email };
       const result = await reviewCollection.find(query).toArray();
       res.send(result);
+    });
+    app.get("/reviewsLength", async (req, res) => {
+      const result = await reviewCollection.countDocuments();
+      res.send({length :result});
     });
     app.get("/review", async (req, res) => {
       const result = await reviewCollection.find().toArray();
