@@ -363,10 +363,10 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
         total_amount: req.body.totalPrice,
         currency: 'BDT',
         tran_id: tran_id, // use unique tran_id for each api call
-        success_url: 'https://domain-hub-server-side.vercel.app/success',
-        fail_url: 'https://domain-hub-server-side.vercel.app/fail',
-        cancel_url: 'https://domain-hub-server-side.vercel.app/cancel',
-        ipn_url: 'https://domain-hub-server-side.vercel.app/ipn',
+        success_url: 'http://localhost:3000/success',
+        fail_url: 'http://localhost:3000/fail',
+        cancel_url: 'http://localhost:3000/cancel',
+        ipn_url: 'http://localhost:3000/ipn',
         shipping_method: 'Courier',
         product_name: 'Computer.',
         product_category: 'Electronic',
@@ -402,7 +402,8 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
       const query = { email: data.cus_email };
       const updatedData = {
         $set: {   
-          payment: "true"
+          payment: "true",
+          purchaseDate: Date.now()
         },
       };
       const result = await cartsCollection.updateMany(
@@ -410,7 +411,7 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
         updatedData
       );
       if(result.modifiedCount>0){
-        res.redirect("https://domain-hub-a81ae.web.app/dashboard/my-all-domains")
+        res.redirect("http://localhost:5173/dashboard/my-all-domains")
       }
       // res.send(result)
       console.log(result);
