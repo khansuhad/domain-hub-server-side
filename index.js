@@ -585,10 +585,20 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
       const result = await reviewCollection.countDocuments();
       res.send({length :result});
     });
-    app.get("/review", async (req, res) => {
-      const result = await reviewCollection.find().toArray();
+    app.get('/reviews',  async(req , res) => {
+      const query = req?.query;
+     const page = parseInt(query.page) ;
+     const size = parseInt(query.size) ;
+     const skip = page * size ;
+      const cursor = reviewCollection.find();
+      const result = await cursor.skip(skip).limit(size).toArray();
       res.send(result);
-    });
+
+  })
+  app.get("/review", async (req, res) => {
+    const result = await reviewCollection.find().sort({$natural: -1 }).limit(9).toArray();
+    res.send(result);
+  });
     app.post("/review", async (req, res) => {
       const reviewItem = req.body;
       const result = await reviewCollection.insertOne(reviewItem);
