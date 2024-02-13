@@ -208,17 +208,6 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/employees", async (req, res) => {
-      const page = Number(req.query.page);
-      const size = Number(req.query.size);
-      const result = await employeesCollection
-        .find()
-        .skip(page * size)
-        .limit(size)
-        .toArray();
-      res.send(result);
-    });
-
     app.get("/users/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const cursor = { email: email };
