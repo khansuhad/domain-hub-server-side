@@ -16,7 +16,6 @@ app.use(
       "http://localhost:5174",
       "https://domain-hub-a81ae.web.app",
       "https://domain-hub-a81ae.firebaseapp.com",
-      
     ],
     credentials: true,
   })
@@ -50,10 +49,10 @@ const verifyToken = (req, res, next) => {
 };
 
 // DigOnTha code start
-const SSLCommerzPayment = require('sslcommerz-lts')
-const store_id = process.env.STORE_ID
-const store_passwd = process.env.STORE_PASS
-const is_live = false
+const SSLCommerzPayment = require("sslcommerz-lts");
+const store_id = process.env.STORE_ID;
+const store_passwd = process.env.STORE_PASS;
+const is_live = false;
 // DigOnTha code finish
 
 async function run() {
@@ -67,7 +66,9 @@ async function run() {
     const reviewCollection = client.db("domainHub").collection("reviews");
     // Fahim Code finish
     // Suhad Code Start
-    const notificationCollection = client.db("domainHub").collection("notifications");
+    const notificationCollection = client
+      .db("domainHub")
+      .collection("notifications");
     // Suhad Code Finish
 
     // Digontha Code start
@@ -75,15 +76,18 @@ async function run() {
       .db("domainHub")
       .collection("freeTrialUsers");
 
-      const orderCollection = client.db("domainHub").collection("order");
+    const orderCollection = client.db("domainHub").collection("order");
 
     // Digontha Code finish
     // suhad code start
     app.get("/notifications/:email", async (req, res) => {
-      const email = req.params.email ;
+      const email = req.params.email;
       console.log(email);
-      const filter = { email : email }
-      const result = await notificationCollection.find(filter).sort({$natural: -1 }).toArray();
+      const filter = { email: email };
+      const result = await notificationCollection
+        .find(filter)
+        .sort({ $natural: -1 })
+        .toArray();
       res.send(result);
     });
     app.post("/notifications", async (req, res) => {
@@ -91,7 +95,7 @@ async function run() {
       const result = await notificationCollection.insertOne(item);
       res.send(result);
     });
-  
+
     app.get("/notifications/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -107,14 +111,13 @@ async function run() {
     });
 
     // suhad code finish
-// suhad code start
+    // suhad code start
 
-app.delete("/notifications", async (req, res) => {
-  const result = await notificationCollection.deleteMany({});
-  res.send(result);
-});
+    app.delete("/notifications", async (req, res) => {
+      const result = await notificationCollection.deleteMany({});
+      res.send(result);
+    });
 
- 
     app.patch("/notifications/updatestatus", async (req, res) => {
       const update = req.body;
       console.log(update);
@@ -122,27 +125,28 @@ app.delete("/notifications", async (req, res) => {
       const updatedDoc = {
         $set: {
           status: update.status,
-
         },
       };
-      const result = await notificationCollection.updateMany(cursor, updatedDoc);
+      const result = await notificationCollection.updateMany(
+        cursor,
+        updatedDoc
+      );
       res.send(result);
     });
 
-app.get("/allunreadnotifications/:email", async (req, res) => {
-  const email = req.params.email ;
-  console.log(email);
-  const filter = { status : "unread",
-    email : email     
-}
-  const result = await notificationCollection.find(filter).sort({$natural: -1 }).toArray();
-  res.send(result);
-});
+    app.get("/allunreadnotifications/:email", async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const filter = { status: "unread", email: email };
+      const result = await notificationCollection
+        .find(filter)
+        .sort({ $natural: -1 })
+        .toArray();
+      res.send(result);
+    });
 
-   
     // suhad code finish
-    // monjur code 
-
+    // monjur code
 
     const verifyAdmin = async (req, res, next) => {
       const email = req.user.email;
@@ -164,22 +168,21 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
         expiresIn: "1h",
       });
 
-   
-    res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      })
-      .send({ success: true });
-  //     .cookie("token", token, {
-  //       httpOnly: true,
-  //       secure: true,
-  //       sameSite: "none",
-       
-  //     })
-  //     .send({ success: true });
-  });
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+        })
+        .send({ success: true });
+      //     .cookie("token", token, {
+      //       httpOnly: true,
+      //       secure: true,
+      //       sameSite: "none",
+
+      //     })
+      //     .send({ success: true });
+    });
 
     app.post("/logout", async (req, res) => {
       const user = req?.body;
@@ -195,9 +198,27 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
     });
 
     app.get("/users", verifyToken, verifyAdmin, async (req, res) => {
-      const result = await userCollection.find().toArray();
+      const page = Number(req.query.page);
+      const size = Number(req.query.size);
+      const result = await userCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray();
       res.send(result);
     });
+
+    app.get("/employees", async (req, res) => {
+      const page = Number(req.query.page);
+      const size = Number(req.query.size);
+      const result = await employeesCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray();
+      res.send(result);
+    });
+
     app.get("/users/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const cursor = { email: email };
@@ -260,6 +281,11 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
       console.log(result);
       res.send(result);
     });
+
+    app.get("/user-count", async (req, res) => {
+      const count = await userCollection.estimatedDocumentCount();
+      res.send({ count });
+    });
     app.put("/get-premium", verifyToken, async (req, res) => {
       const email = req?.query?.email;
       console.log("email", email);
@@ -277,13 +303,21 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
 
     app.get("/admin/states", async (req, res) => {
       const totalDomain = await domainCollection.countDocuments();
-      const totalDomainSold = await cartsCollection.countDocuments({ payment: "true" });
+      const totalDomainSold = await cartsCollection.countDocuments({
+        payment: "true",
+      });
       const totalUser = await userCollection.countDocuments();
       const totalReview = await reviewCollection.countDocuments();
       const totalFreeTailRequest = await freeTrialUserCollection.countDocuments(
         { approve: "Pending" }
       );
-      res.send({ totalDomain, totalUser, totalFreeTailRequest, totalReview, totalDomainSold });
+      res.send({
+        totalDomain,
+        totalUser,
+        totalFreeTailRequest,
+        totalReview,
+        totalDomainSold,
+      });
     });
 
     // monjur code finish
@@ -361,63 +395,58 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
       console.log(req.body);
       const data = {
         total_amount: req.body.totalPrice,
-        currency: 'BDT',
+        currency: "BDT",
         tran_id: tran_id, // use unique tran_id for each api call
-        success_url: 'http://localhost:3000/success',
-        fail_url: 'http://localhost:3000/fail',
-        cancel_url: 'http://localhost:3000/cancel',
-        ipn_url: 'http://localhost:3000/ipn',
-        shipping_method: 'Courier',
-        product_name: 'Computer.',
-        product_category: 'Electronic',
-        product_profile: 'general',
-        cus_name: 'Customer Name',
+        success_url: "http://localhost:3000/success",
+        fail_url: "http://localhost:3000/fail",
+        cancel_url: "http://localhost:3000/cancel",
+        ipn_url: "http://localhost:3000/ipn",
+        shipping_method: "Courier",
+        product_name: "Computer.",
+        product_category: "Electronic",
+        product_profile: "general",
+        cus_name: "Customer Name",
         cus_email: req.body.email,
-        cus_add1: 'Dhaka',
-        cus_add2: 'Dhaka',
-        cus_city: 'Dhaka',
-        cus_state: 'Dhaka',
-        cus_postcode: '1000',
-        cus_country: 'Bangladesh',
-        cus_phone: '01711111111',
-        cus_fax: '01711111111',
-        ship_name: 'Customer Name',
-        ship_add1: 'Dhaka',
-        ship_add2: 'Dhaka',
-        ship_city: 'Dhaka',
-        ship_state: 'Dhaka',
+        cus_add1: "Dhaka",
+        cus_add2: "Dhaka",
+        cus_city: "Dhaka",
+        cus_state: "Dhaka",
+        cus_postcode: "1000",
+        cus_country: "Bangladesh",
+        cus_phone: "01711111111",
+        cus_fax: "01711111111",
+        ship_name: "Customer Name",
+        ship_add1: "Dhaka",
+        ship_add2: "Dhaka",
+        ship_city: "Dhaka",
+        ship_state: "Dhaka",
         ship_postcode: 1000,
-        ship_country: 'Bangladesh',
-    };
-    console.log(data);
-    const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live)
-    sslcz.init(data).then(apiResponse => {
-        // Redirect the user to payment gateway
-        let GatewayPageURL = apiResponse.GatewayPageURL
-        res.send({url:GatewayPageURL})
-        console.log('Redirecting to: ', GatewayPageURL)
-    });
-
-    app.post("/success",async(req,res)=>{
-      const query = { email: data.cus_email };
-      const updatedData = {
-        $set: {   
-          payment: "true",
-          purchaseDate: Date.now()
-        },
+        ship_country: "Bangladesh",
       };
-      const result = await cartsCollection.updateMany(
-        query,
-        updatedData
-      );
-      if(result.modifiedCount>0){
-        res.redirect("http://localhost:5173/dashboard/my-all-domains")
-      }
-      // res.send(result)
-      console.log(result);
-    })
-    
+      console.log(data);
+      const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+      sslcz.init(data).then((apiResponse) => {
+        // Redirect the user to payment gateway
+        let GatewayPageURL = apiResponse.GatewayPageURL;
+        res.send({ url: GatewayPageURL });
+        console.log("Redirecting to: ", GatewayPageURL);
+      });
 
+      app.post("/success", async (req, res) => {
+        const query = { email: data.cus_email };
+        const updatedData = {
+          $set: {
+            payment: "true",
+            purchaseDate: Date.now(),
+          },
+        };
+        const result = await cartsCollection.updateMany(query, updatedData);
+        if (result.modifiedCount > 0) {
+          res.redirect("http://localhost:5173/dashboard/my-all-domains");
+        }
+        // res.send(result)
+        console.log(result);
+      });
     });
 
     //  Digontha Code finish
@@ -516,7 +545,7 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
             $set: {
               payment: "true",
               purchaseDate: Date.now(),
-              years: Number(item.time)
+              years: Number(item.time),
             },
           };
 
