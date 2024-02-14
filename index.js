@@ -280,6 +280,16 @@ async function run() {
       const count = await userCollection.estimatedDocumentCount();
       res.send({ count });
     });
+    app.get(`/premium-user`, async (req, res) => {
+      const email = req.query.email
+      const user = await userCollection.findOne({email, premium: true});
+      let isPremium = false;
+      if (user) {
+        isPremium = true
+      }
+      console.log(isPremium);
+      res.send({ isPremium });
+    })
     app.put("/get-premium", verifyToken, async (req, res) => {
       const email = req?.query?.email;
       console.log("email", email);
