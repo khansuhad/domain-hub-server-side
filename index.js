@@ -391,15 +391,15 @@ async function run() {
         total_amount: req.body.totalPrice,
         currency: "BDT",
         tran_id: tran_id, // use unique tran_id for each api call
-        success_url: 'https://domain-hub-server-side.vercel.app/success',
-        fail_url: 'https://domain-hub-server-side.vercel.app/fail',
-        cancel_url: 'https://domain-hub-server-side.vercel.app/cancel',
-        ipn_url: 'https://domain-hub-server-side.vercel.app/ipn',
-        shipping_method: 'Courier',
-        product_name: 'Computer.',
-        product_category: 'Electronic',
-        product_profile: 'general',
-        cus_name: 'Customer Name',
+        success_url: "http://localhost:3000/success",
+        fail_url: "http://localhost:3000/fail",
+        cancel_url: "http://localhost:3000/cancel",
+        ipn_url: "http://localhost:3000/ipn",
+        shipping_method: "Courier",
+        product_name: "Computer.",
+        product_category: "Electronic",
+        product_profile: "general",
+        cus_name: "Customer Name",
         cus_email: req.body.email,
         cus_add1: "Dhaka",
         cus_add2: "Dhaka",
@@ -417,17 +417,6 @@ async function run() {
         ship_postcode: 1000,
         ship_country: "Bangladesh",
       };
-      const result = await cartsCollection.updateMany(
-        query,
-        updatedData
-      );
-      if(result.modifiedCount>0){
-        res.redirect("https://domain-hub-a81ae.web.app/dashboard/my-all-domains")
-      }
-      // res.send(result)
-      console.log(result);
-    })
-    
       console.log(data);
       const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
       sslcz.init(data).then((apiResponse) => {
@@ -452,7 +441,7 @@ async function run() {
         // res.send(result)
         console.log(result);
       });
-    
+    });
 
     //  Digontha Code finish
 
