@@ -363,7 +363,9 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
     const tran_id = new ObjectId().toString();
 
     app.post("/order", async (req, res) => {
-      console.log(req.body);
+      // console.log(req.body);
+      const cart = req.body.years
+      console.log("Cart years",cart);
       const data = {
         total_amount: req.body.totalPrice,
         currency: 'BDT',
