@@ -461,6 +461,23 @@ async function run() {
     const domainCollection = client.db("domainHub").collection("domain");
     const cartsCollection = client.db("domainHub").collection("carts");
 
+    // paigination api//Abubakar
+    
+    app.get("/domain-count", async (req, res) => {
+      const count = await domainCollection.estimatedDocumentCount();
+      res.send({ count });
+    });
+    app.get("/domain", verifyToken, verifyAdmin, async (req, res) => {
+      const page = Number(req.query.page);
+      const size = Number(req.query.size);
+      const result = await userCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray();
+      res.send(result);
+    });
+
     // domain related api//Abubakar
 
     app.get("/domain", async (req, res) => {
