@@ -606,7 +606,7 @@ app.get("/allunreadnotifications/:email", async (req, res) => {
       res.send(result);
     });
 
-    // Sharif 
+    // Sharif- all sold domain
     app.get("/soldDomain", async (req,res)=>{
       const query= {payment: "true"}
       const result= await cartsCollection.find(query).toArray()
