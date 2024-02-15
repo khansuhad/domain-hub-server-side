@@ -467,10 +467,10 @@ async function run() {
       const count = await domainCollection.estimatedDocumentCount();
       res.send({ count });
     });
-    app.get("/domain", verifyToken, verifyAdmin, async (req, res) => {
+    app.get("/domain", async (req, res) => {
       const page = Number(req.query.page);
       const size = Number(req.query.size);
-      const result = await userCollection
+      const result = await domainCollection
         .find()
         .skip(page * size)
         .limit(size)
@@ -479,12 +479,6 @@ async function run() {
     });
 
     // domain related api//Abubakar
-
-    app.get("/domain", async (req, res) => {
-      const result = await domainCollection.find().toArray();
-      res.send(result);
-    });
-
     app.get("/domain/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: id };
