@@ -469,7 +469,7 @@ async function run() {
       const count = await domainCollection.estimatedDocumentCount();
       res.send({ count });
     });
-    app.get("/domain", verifyToken,  async (req, res) => {
+    app.get("/domain", async (req, res) => {
       const page = Number(req.query.page);
       const size = Number(req.query.size);
       const result = await domainCollection
@@ -481,12 +481,6 @@ async function run() {
     });
 
     // domain related api//Abubakar
-
-    app.get("/domain", async (req, res) => {
-      const result = await domainCollection.find().toArray();
-      res.send(result);
-    });
-
     app.get("/domain/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: id };
@@ -662,6 +656,13 @@ async function run() {
       const result = await cartsCollection.updateOne(cursor, updatedDoc);
       res.send(result);
     });
+
+    // Sharif- all sold domain
+    app.get("/soldDomain", async (req,res)=>{
+      const query= {payment: "true"}
+      const result= await cartsCollection.find(query).toArray()
+      res.send(result)
+    })
     // Fahim Review part
 
     // await client.connect();
