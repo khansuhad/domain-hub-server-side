@@ -367,7 +367,7 @@ async function run() {
       const updatedData = {
         $set: {
           approve: status,
-          createdAt: new Date(),
+          // createdAt: new Date(),
         },
       };
       const result = await freeTrialUserCollection.updateOne(
@@ -375,13 +375,13 @@ async function run() {
         updatedData
       );
 
-      if (status == "Accepted") {
-        console.log(status);
-        await freeTrialUserCollection.createIndex(
-          { createdAt: 1 },
-          { expireAfterSeconds: 40 }
-        );
-      }
+      // if (status == "Accepted") {
+      //   console.log(status);
+      //   await freeTrialUserCollection.createIndex(
+      //     { createdAt: 1 },
+      //     { expireAfterSeconds: 40 }
+      //   );
+      // }
 
       res.send(result);
     });
@@ -469,10 +469,10 @@ async function run() {
       const count = await domainCollection.estimatedDocumentCount();
       res.send({ count });
     });
-    app.get("/domain", verifyToken, verifyAdmin, async (req, res) => {
+    app.get("/domain", verifyToken,  async (req, res) => {
       const page = Number(req.query.page);
       const size = Number(req.query.size);
-      const result = await userCollection
+      const result = await domainCollection
         .find()
         .skip(page * size)
         .limit(size)
