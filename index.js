@@ -280,6 +280,16 @@ async function run() {
       const count = await userCollection.estimatedDocumentCount();
       res.send({ count });
     });
+    app.get(`/premium-user`, async (req, res) => {
+      const email = req.query.email
+      const user = await userCollection.findOne({email, premium: true});
+      let isPremium = false;
+      if (user) {
+        isPremium = true
+      }
+      console.log(isPremium);
+      res.send({ isPremium });
+    })
     app.put("/get-premium", verifyToken, async (req, res) => {
       const email = req?.query?.email;
       console.log("email", email);
@@ -451,13 +461,24 @@ async function run() {
     const domainCollection = client.db("domainHub").collection("domain");
     const cartsCollection = client.db("domainHub").collection("carts");
 
-    // domain related api//Abubakar
-
+    // paigination api//Abubakar
+    
+    app.get("/domain-count", async (req, res) => {
+      const count = await domainCollection.estimatedDocumentCount();
+      res.send({ count });
+    });
     app.get("/domain", async (req, res) => {
-      const result = await domainCollection.find().toArray();
+      const page = Number(req.query.page);
+      const size = Number(req.query.size);
+      const result = await domainCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray();
       res.send(result);
     });
 
+    // domain related api//Abubakar
     app.get("/domain/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: id };
@@ -633,6 +654,13 @@ async function run() {
       const result = await cartsCollection.updateOne(cursor, updatedDoc);
       res.send(result);
     });
+
+    // Sharif- all sold domain
+    app.get("/soldDomain", async (req,res)=>{
+      const query= {payment: "true"}
+      const result= await cartsCollection.find(query).toArray()
+      res.send(result)
+    })
     // Fahim Review part
 
     // await client.connect();
