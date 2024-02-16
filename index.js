@@ -654,6 +654,13 @@ async function run() {
       const result = await cartsCollection.updateOne(cursor, updatedDoc);
       res.send(result);
     });
+
+    // Sharif- all sold domain
+    app.get("/soldDomain", async (req,res)=>{
+      const query= {payment: "true"}
+      const result= await cartsCollection.find(query).toArray()
+      res.send(result)
+    })
     // Fahim Review part
 
     // await client.connect();
