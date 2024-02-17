@@ -381,7 +381,6 @@ async function run() {
       const email = req.body.email;
       const query = { email: email };
       const claimDomain = req.body.claimDomain;
-
       const updatedData = {
         $set: {
           claimDomain: claimDomain
@@ -392,7 +391,6 @@ async function run() {
         query,
         updatedData
       );
-
       // if (status == "Accepted") {
       //   console.log(status);
       //   await freeTrialUserCollection.createIndex(
@@ -400,7 +398,6 @@ async function run() {
       //     { expireAfterSeconds: 40 }
       //   );
       // }
-
       res.send(result);
     });
 
