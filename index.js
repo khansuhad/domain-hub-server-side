@@ -197,7 +197,7 @@ async function run() {
       // res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
-    app.get("/usersLength",  async (req, res) => {
+    app.get("/usersLength", async (req, res) => {
       const count = await userCollection.countDocuments();
       console.log(count);
       res.send({ length: count });
@@ -282,7 +282,7 @@ async function run() {
     });
     app.get(`/premium-user`, async (req, res) => {
       const email = req.query.email
-      const user = await userCollection.findOne({email, premium: true});
+      const user = await userCollection.findOne({ email, premium: true });
       let isPremium = false;
       if (user) {
         isPremium = true
@@ -367,6 +367,24 @@ async function run() {
       const updatedData = {
         $set: {
           approve: status,
+
+        },
+      };
+      const result = await freeTrialUserCollection.updateOne(
+        query,
+        updatedData
+      );
+      res.send(result);
+    });
+
+    app.patch("/freeTrialUsers", async (req, res) => {
+      const email = req.body.email;
+      const query = { email: email };
+      const claimDomain = req.body.claimDomain;
+
+      const updatedData = {
+        $set: {
+          claimDomain: claimDomain
           // createdAt: new Date(),
         },
       };
@@ -398,7 +416,7 @@ async function run() {
     app.post("/order", async (req, res) => {
       // console.log(req.body);
       const cart = req.body.years
-      console.log("Cart years",cart);
+      console.log("Cart years", cart);
       const data = {
         total_amount: req.body.totalPrice,
         currency: "BDT",
@@ -464,7 +482,7 @@ async function run() {
     const cartsCollection = client.db("domainHub").collection("carts");
 
     // paigination api//Abubakar
-    
+
     app.get("/domain-count", async (req, res) => {
       const count = await domainCollection.estimatedDocumentCount();
       res.send({ count });
@@ -525,7 +543,7 @@ async function run() {
     // });
     app.get("/sellingsLength", async (req, res) => {
       const result = await cartsCollection.countDocuments();
-      res.send({length : result});
+      res.send({ length: result });
     });
     app.get("/carts", async (req, res) => {
       const email = req.query.email;
@@ -624,22 +642,22 @@ async function run() {
     });
     app.get("/reviewsLength", async (req, res) => {
       const result = await reviewCollection.countDocuments();
-      res.send({length :result});
+      res.send({ length: result });
     });
-    app.get('/reviews',  async(req , res) => {
+    app.get('/reviews', async (req, res) => {
       const query = req?.query;
-     const page = parseInt(query.page) ;
-     const size = parseInt(query.size) ;
-     const skip = page * size ;
+      const page = parseInt(query.page);
+      const size = parseInt(query.size);
+      const skip = page * size;
       const cursor = reviewCollection.find();
       const result = await cursor.skip(skip).limit(size).toArray();
       res.send(result);
 
-  })
-  app.get("/review", async (req, res) => {
-    const result = await reviewCollection.find().sort({$natural: -1 }).limit(9).toArray();
-    res.send(result);
-  });
+    })
+    app.get("/review", async (req, res) => {
+      const result = await reviewCollection.find().sort({ $natural: -1 }).limit(9).toArray();
+      res.send(result);
+    });
     app.post("/review", async (req, res) => {
       const reviewItem = req.body;
       const result = await reviewCollection.insertOne(reviewItem);
@@ -658,9 +676,9 @@ async function run() {
     });
 
     // Sharif- all sold domain
-    app.get("/soldDomain", async (req,res)=>{
-      const query= {payment: "true"}
-      const result= await cartsCollection.find(query).toArray()
+    app.get("/soldDomain", async (req, res) => {
+      const query = { payment: "true" }
+      const result = await cartsCollection.find(query).toArray()
       res.send(result)
     })
     // Fahim Review part
