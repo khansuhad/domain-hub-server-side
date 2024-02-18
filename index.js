@@ -77,6 +77,7 @@ async function run() {
       .collection("freeTrialUsers");
 
     const orderCollection = client.db("domainHub").collection("order");
+    
 
     // Digontha Code finish
     // suhad code start
@@ -376,7 +377,7 @@ async function run() {
       const updatedData = {
         $set: {
           approve: status,
-          createdAt: new Date(),
+          // createdAt: new Date(),
         },
       };
       const result = await freeTrialUserCollection.updateOne(
@@ -384,16 +385,41 @@ async function run() {
         updatedData
       );
 
-      if (status == "Accepted") {
-        console.log(status);
-        await freeTrialUserCollection.createIndex(
-          { createdAt: 1 },
-          { expireAfterSeconds: 40 }
-        );
-      }
+      // if (status == "Accepted") {
+      //   console.log(status);
+      //   await freeTrialUserCollection.createIndex(
+      //     { createdAt: 1 },
+      //     { expireAfterSeconds: 40 }
+      //   );
+      // }
 
       res.send(result);
     });
+
+    app.patch("/freeTrialUsers", async (req, res) => {
+      const email = req.body.email;
+      const query = { email: email };
+      const claimDomain = req.body.claimDomain;
+      const updatedData = {
+        $set: {
+          claimDomain: claimDomain
+          // createdAt: new Date(),
+        },
+      };
+      const result = await freeTrialUserCollection.updateOne(
+        query,
+        updatedData
+      );
+      // if (status == "Accepted") {
+      //   console.log(status);
+      //   await freeTrialUserCollection.createIndex(
+      //     { createdAt: 1 },
+      //     { expireAfterSeconds: 40 }
+      //   );
+      // }
+      res.send(result);
+    });
+
 
     app.delete("/freeTrialUsers", async (req, res) => {
       const email = req.query.email;
