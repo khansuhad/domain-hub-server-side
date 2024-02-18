@@ -281,15 +281,15 @@ async function run() {
       res.send({ count });
     });
     app.get(`/premium-user`, async (req, res) => {
-      const email = req.query.email
+      const email = req.query.email;
       const user = await userCollection.findOne({ email, premium: true });
       let isPremium = false;
       if (user) {
-        isPremium = true
+        isPremium = true;
       }
       console.log(isPremium);
       res.send({ isPremium });
-    })
+    });
     app.put("/get-premium", verifyToken, async (req, res) => {
       const email = req?.query?.email;
       console.log("email", email);
@@ -323,6 +323,11 @@ async function run() {
         totalDomainSold,
       });
     });
+
+    app.get("/special-discounts-domain", async (req, res) => {
+      const result = await domainCollection.find().sort({price: -1}).limit(8).toArray();
+      res.send(result);
+  });
 
     // monjur code finish
 
@@ -367,37 +372,22 @@ async function run() {
       const updatedData = {
         $set: {
           approve: status,
-
+          createdAt: new Date(),
         },
       };
       const result = await freeTrialUserCollection.updateOne(
         query,
         updatedData
       );
-      res.send(result);
-    });
 
-    app.patch("/freeTrialUsers", async (req, res) => {
-      const email = req.body.email;
-      const query = { email: email };
-      const claimDomain = req.body.claimDomain;
-      const updatedData = {
-        $set: {
-          claimDomain: claimDomain
-          // createdAt: new Date(),
-        },
-      };
-      const result = await freeTrialUserCollection.updateOne(
-        query,
-        updatedData
-      );
-      // if (status == "Accepted") {
-      //   console.log(status);
-      //   await freeTrialUserCollection.createIndex(
-      //     { createdAt: 1 },
-      //     { expireAfterSeconds: 40 }
-      //   );
-      // }
+      if (status == "Accepted") {
+        console.log(status);
+        await freeTrialUserCollection.createIndex(
+          { createdAt: 1 },
+          { expireAfterSeconds: 40 }
+        );
+      }
+
       res.send(result);
     });
 
@@ -411,9 +401,7 @@ async function run() {
     const tran_id = new ObjectId().toString();
 
     app.post("/order", async (req, res) => {
-      // console.log(req.body);
-      const cart = req.body.years
-      console.log("Cart years", cart);
+      console.log(req.body);
       const data = {
         total_amount: req.body.totalPrice,
         currency: "BDT",
@@ -641,7 +629,7 @@ async function run() {
       const result = await reviewCollection.countDocuments();
       res.send({ length: result });
     });
-    app.get('/reviews', async (req, res) => {
+    app.get("/reviews", async (req, res) => {
       const query = req?.query;
       const page = parseInt(query.page);
       const size = parseInt(query.size);
@@ -649,10 +637,13 @@ async function run() {
       const cursor = reviewCollection.find();
       const result = await cursor.skip(skip).limit(size).toArray();
       res.send(result);
-
-    })
+    });
     app.get("/review", async (req, res) => {
-      const result = await reviewCollection.find().sort({ $natural: -1 }).limit(9).toArray();
+      const result = await reviewCollection
+        .find()
+        .sort({ $natural: -1 })
+        .limit(9)
+        .toArray();
       res.send(result);
     });
     app.post("/review", async (req, res) => {
@@ -674,10 +665,10 @@ async function run() {
 
     // Sharif- all sold domain
     app.get("/soldDomain", async (req, res) => {
-      const query = { payment: "true" }
-      const result = await cartsCollection.find(query).toArray()
-      res.send(result)
-    })
+      const query = { payment: "true" };
+      const result = await cartsCollection.find(query).toArray();
+      res.send(result);
+    });
     // Fahim Review part
 
     // await client.connect();
