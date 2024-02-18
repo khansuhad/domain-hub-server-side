@@ -328,6 +328,10 @@ async function run() {
       const result = await domainCollection.find().sort({price: -1}).limit(8).toArray();
       res.send(result);
   });
+    app.get("/best-hosting-plan", async (req, res) => {
+      const result = await domainCollection.find().sort({sold: -1}).limit(8).toArray();
+      res.send(result);
+  });
 
     // monjur code finish
 
@@ -578,6 +582,17 @@ async function run() {
             { _id: new ObjectId(item.id) },
             updatedDoc
           );
+          // find the soldered domain and update property +1
+          const cartDomain = await cartsCollection.findOne({ _id: new ObjectId(item.id)})
+          const domainId = cartDomain.domainId
+          const domain = await domainCollection.findOne({ _id: new ObjectId(domainId)})
+          const sold = domain.sold || 0
+          const updatedDomain = {
+            $set: {
+              sold: sold + 1
+            }
+          };
+          await domainCollection.updateOne({ _id: new ObjectId(domainId) },updatedDomain)
         }
         res.status(200).json({ message: "Carts updated successfully" });
         console.log("Carts updated successfully");
