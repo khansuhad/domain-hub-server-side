@@ -369,6 +369,11 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/freeTrialUsersCount", async (req, res) => {
+      const count = await freeTrialUserCollection.estimatedDocumentCount();
+      res.send({ count });
+    });
+
     app.put("/freeTrialUsers", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
