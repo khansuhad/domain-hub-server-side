@@ -668,7 +668,7 @@ async function run() {
     app.get("/myReview", async (req, res) => {
       const email = req?.query?.email;
       const query = { userEmail: email };
-      const result = await reviewCollection.find(query).toArray();
+      const result = await reviewCollection.find(query).sort({ $natural: -1 }).toArray();
       res.send(result);
     });
     app.get("/reviewsLength", async (req, res) => {
@@ -681,7 +681,7 @@ async function run() {
       const size = parseInt(query.size);
       const skip = page * size;
       const cursor = reviewCollection.find();
-      const result = await cursor.skip(skip).limit(size).toArray();
+      const result = await cursor.sort({ $natural: -1 }).skip(skip).limit(size).toArray();
       res.send(result);
     });
     app.get("/review", async (req, res) => {
