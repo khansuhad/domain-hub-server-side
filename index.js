@@ -415,6 +415,7 @@ async function run() {
       const updatedData = {
         $set: {
           claimDomain: claimDomain,
+          claimDate: Date.now(),
           // createdAt: new Date(),
         },
       };
