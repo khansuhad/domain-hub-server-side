@@ -407,7 +407,8 @@ async function run() {
       const claimDomain = req.body.claimDomain;
       const updatedData = {
         $set: {
-          claimDomain: claimDomain
+          claimDomain: claimDomain,
+          claimDate: Date.now(),
           // createdAt: new Date(),
         },
       };
