@@ -77,7 +77,6 @@ async function run() {
       .collection("freeTrialUsers");
 
     const orderCollection = client.db("domainHub").collection("order");
-    
 
     // Digontha Code finish
     // suhad code start
@@ -326,13 +325,21 @@ async function run() {
     });
 
     app.get("/special-discounts-domain", async (req, res) => {
-      const result = await domainCollection.find().sort({price: -1}).limit(8).toArray();
+      const result = await domainCollection
+        .find()
+        .sort({ price: -1 })
+        .limit(8)
+        .toArray();
       res.send(result);
-  });
+    });
     app.get("/best-hosting-plan", async (req, res) => {
-      const result = await domainCollection.find().sort({sold: -1}).limit(8).toArray();
+      const result = await domainCollection
+        .find()
+        .sort({ sold: -1 })
+        .limit(8)
+        .toArray();
       res.send(result);
-  });
+    });
 
     // monjur code finish
 
@@ -407,7 +414,7 @@ async function run() {
       const claimDomain = req.body.claimDomain;
       const updatedData = {
         $set: {
-          claimDomain: claimDomain
+          claimDomain: claimDomain,
           // createdAt: new Date(),
         },
       };
@@ -424,7 +431,6 @@ async function run() {
       // }
       res.send(result);
     });
-
 
     app.delete("/freeTrialUsers", async (req, res) => {
       const email = req.query.email;
@@ -592,11 +598,12 @@ async function run() {
       res.send(result);
     });
     // carts related api//Abubakar
-
     app.put("/carts", async (req, res) => {
       try {
-        const carts = req.body;
-        console.log("carts", carts);
+        const carts = req.body.cartItemSelectedTimeMBM;
+        const price = req.body.totalPriceMBM;
+        const email = req.body.email;
+        console.log("data", req.body);
 
         // Loop through each item in the request body and update its payment status
         for (const item of carts) {
@@ -614,17 +621,32 @@ async function run() {
             updatedDoc
           );
           // find the soldered domain and update property +1
-          const cartDomain = await cartsCollection.findOne({ _id: new ObjectId(item.id)})
-          const domainId = cartDomain.domainId
-          const domain = await domainCollection.findOne({ _id: new ObjectId(domainId)})
-          const sold = domain.sold || 0
+          const cartDomain = await cartsCollection.findOne({
+            _id: new ObjectId(item.id),
+          });
+          const domainId = cartDomain.domainId;
+          const domain = await domainCollection.findOne({
+            _id: new ObjectId(domainId),
+          });
+          const sold = domain.sold || 0;
           const updatedDomain = {
             $set: {
-              sold: sold + 1
-            }
+              sold: sold + 1,
+            },
           };
-          await domainCollection.updateOne({ _id: new ObjectId(domainId) },updatedDomain)
+          await domainCollection.updateOne(
+            { _id: new ObjectId(domainId) },
+            updatedDomain
+          );
         }
+        const user = await userCollection.findOne({ email });
+        const point = user.point || 0;
+        const updatedPoint = {
+          $set: {
+            point:  (point + Math.round(price * 0.25)),
+          },
+        };
+        await userCollection.updateOne({ email }, updatedPoint);
         res.status(200).json({ message: "Carts updated successfully" });
         console.log("Carts updated successfully");
       } catch (error) {
@@ -668,7 +690,10 @@ async function run() {
     app.get("/myReview", async (req, res) => {
       const email = req?.query?.email;
       const query = { userEmail: email };
-      const result = await reviewCollection.find(query).sort({ $natural: -1 }).toArray();
+      const result = await reviewCollection
+        .find(query)
+        .sort({ $natural: -1 })
+        .toArray();
       res.send(result);
     });
     app.get("/reviewsLength", async (req, res) => {
@@ -681,7 +706,11 @@ async function run() {
       const size = parseInt(query.size);
       const skip = page * size;
       const cursor = reviewCollection.find();
-      const result = await cursor.sort({ $natural: -1 }).skip(skip).limit(size).toArray();
+      const result = await cursor
+        .sort({ $natural: -1 })
+        .skip(skip)
+        .limit(size)
+        .toArray();
       res.send(result);
     });
     app.get("/review", async (req, res) => {
