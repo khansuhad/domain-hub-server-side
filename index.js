@@ -304,6 +304,23 @@ async function run() {
       console.log(result);
       res.send(result);
     });
+    app.put("/get-premium-use-point", verifyToken, async (req, res) => {
+      const email = req?.query?.email;
+      console.log("email", email);
+      const cursor = { email };
+      const user = await userCollection.findOne({ email });
+      const point = user.point;
+      const updatedDoc = {
+        $set: {
+          premium: true,
+          point: point - 99,
+        },
+      };
+      console.log(updatedDoc);
+      const result = await userCollection.updateOne(cursor, updatedDoc);
+      console.log(result);
+      res.send(result);
+    });
 
     app.get("/admin/states", async (req, res) => {
       const totalDomain = await domainCollection.countDocuments();
@@ -644,7 +661,7 @@ async function run() {
         const point = user.point || 0;
         const updatedPoint = {
           $set: {
-            point:  (point + Math.round(price * 0.25)),
+            point: point + Math.round(price * 0.25),
           },
         };
         await userCollection.updateOne({ email }, updatedPoint);
