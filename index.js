@@ -253,6 +253,9 @@ async function run() {
         $set: {
           name: user.name,
           phone: user.phone,
+          presentAddress: user.presentAddress,
+          permanentAddress: user.permanentAddress,
+          nationality: user.nationality,
         },
       };
       const result = await userCollection.updateOne(cursor, updatedDoc);
