@@ -709,6 +709,8 @@ async function run() {
       }
     });
     // All the payment true carts get api
+
+    // All the reviews get api
     app.get("/myReview", async (req, res) => {
       const email = req?.query?.email;
       const query = { userEmail: email };
@@ -718,6 +720,7 @@ async function run() {
         .toArray();
       res.send(result);
     });
+    // All the reviews get api
     app.get("/reviewsLength", async (req, res) => {
       const result = await reviewCollection.countDocuments();
       res.send({ length: result });
