@@ -693,6 +693,7 @@ async function run() {
     });
 
     // Fahim Review part
+    // All the payment true carts get api
     app.get("/paymentTrueCarts", async (req, res) => {
       try {
         const userEmail = req?.query?.email;
@@ -707,7 +708,7 @@ async function run() {
         console.log(error);
       }
     });
-
+    // All the payment true carts get api
     app.get("/myReview", async (req, res) => {
       const email = req?.query?.email;
       const query = { userEmail: email };
