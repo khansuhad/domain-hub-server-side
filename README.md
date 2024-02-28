@@ -21,7 +21,7 @@
 
 
 ### Access token
-- ACCESS_TOKEN_SECRET= 
+- ACCESS_TOKEN_SECRET= xxx
 
 
 ## Project setup
