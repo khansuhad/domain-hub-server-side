@@ -765,15 +765,9 @@ async function run() {
 
     // Sharif- all sold domain
     app.get("/soldDomain", async (req, res) => {
-      const query = { payment: "true" };
-      const result = await cartsCollection.find(query).toArray();
+      const result = await cartsCollection.find().toArray();
       res.send(result);
     });
-    // Fahim Review part
-
-    // await client.connect();
-    // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
